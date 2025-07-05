@@ -54,10 +54,10 @@ defmodule KeycloakEx.Client.User do
         |> OAuth2.Client.refresh_token()
       end
 
-      def get_request_realm(realm, url, body \\ nil) do
+      defp get_request_realm(realm, url, body \\ nil) do
         conf = config()
 
-       OAuth2.Client.get(
+        OAuth2.Client.get(
           new(),
           "#{conf[:host_uri]}/realms/#{realm}/#{url}",
           [
@@ -65,6 +65,36 @@ defmodule KeycloakEx.Client.User do
             {"Accept", "application/json"}
           ]
         )
+      end
+
+      defp post_request_realm(realm, url, access_token, body \\ []) do
+        conf = config()
+
+        OAuth2.Client.post(
+          new(),
+          "#{conf[:host_uri]}/realms/#{realm}/#{url}",
+          body,
+          [
+            {"Authorization", "Bearer #{access_token}"},
+            {"Accept", "application/json"},
+            {"Content-Type", "application/x-www-form-urlencoded"}
+          ]
+        )
+      end
+
+      def logout(access_token) do
+        conf = config()
+
+        body = [
+          client_id: conf[:client_id],
+          client_secret: conf[:client_secret],
+          # refresh_token: refresh_token(access_token)
+        ]
+
+        # access_token = get_token().token.access_token
+
+        post_request_realm(conf[:realm], "protocol/openid-connect/logout?redirect_uri=http://localhost:4000/", access_token, body)
+        |> IO.inspect()
       end
 
       def introspect(access_token) do
@@ -101,7 +131,6 @@ defmodule KeycloakEx.Client.User do
             err
         end
       end
-
 
       def get_jws() do
         conf = config()
