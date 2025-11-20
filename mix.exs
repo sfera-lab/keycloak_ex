@@ -37,7 +37,7 @@ defmodule KeycloakEx.MixProject do
       {:mint, "~> 1.0"},
       {:jose, "~> 1.11"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:testcontainers, "~> 1.11", only: :test}
+      {:testcontainers, "~> 1.13", only: :test}
     ]
   end
 
