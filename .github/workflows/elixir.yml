@@ -23,6 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         pair:
+          - elixir: 1.19
+            otp: 28.1
           - elixir: 1.16
             otp: 26.2
           - elixir: 1.15
@@ -31,8 +33,7 @@ jobs:
             otp: 25.3
           - elixir: 1.13
             otp: 25.3
-          - elixir: 1.13
-            otp: 24.2
+          
 
     steps:
     - uses: actions/checkout@v3
