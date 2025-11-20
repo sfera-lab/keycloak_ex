@@ -60,7 +60,7 @@ defmodule KeycloakEx.TokenVerifier do
   end
 
   defp verify_with_jwks(token, jwks) do
-    with {:ok, %JWT{fields: claims}, key} <- get_valid_key(token, jwks),
+    with {:ok, %JWT{fields: claims}, _key} <- get_valid_key(token, jwks),
          {:ok, _} <- validate_claims(claims) do
       {:ok, claims}
     else
@@ -81,7 +81,7 @@ defmodule KeycloakEx.TokenVerifier do
 
   defp decode_token(token) do
     case JOSE.JWT.peek_payload(token) do
-      {:ok, jwt} -> {:ok, jwt, JOSE.JWT.peek_protected(token)}
+      %JOSE.JWT{} = jwt -> {:ok, jwt, JOSE.JWT.peek_protected(token)}
       _ -> {:error, "Invalid JWT"}
     end
   end
