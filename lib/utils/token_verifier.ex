@@ -44,10 +44,12 @@ defmodule KeycloakEx.TokenVerifier do
     case client.get_jws() do
       {:ok, %OAuth2.Response{status_code: 200, body: body}} ->
         case body do
-          %{"keys" => keys} -> keys |> IO.inspect()
+          %{"keys" => keys} -> keys
           _ -> []
         end
-      _ -> []
+
+      _ ->
+        []
     end
   end
 
@@ -69,10 +71,10 @@ defmodule KeycloakEx.TokenVerifier do
   end
 
   defp get_valid_key(token, jwks) do
-    with {:ok, %JWT{} = jwt, %{"kid" => kid}} <- decode_token(token),
+    with {:ok, %JWT{} = jwt, %{fields: %{"kid" => kid}}} <- decode_token(token),
          key <- Enum.find(jwks, fn k -> k["kid"] == kid end),
          jwk <- JWK.from(key),
-         true <- JOSE.JWT.verify_strict(jwk, ["RS256"], token) do
+         {true, _, _} <- JOSE.JWT.verify_strict(jwk, ["RS256"], token) do
       {:ok, jwt, jwk}
     else
       _ -> {:error, "Invalid key"}
