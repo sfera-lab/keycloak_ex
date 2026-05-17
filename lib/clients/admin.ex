@@ -54,6 +54,7 @@ defmodule KeycloakEx.Client.Admin do
         func.(
           new(),
           "#{conf[:host_uri]}/admin/realms/#{realm}/#{url}",
+          body,
           [
             {"Authorization", "Bearer #{get_token().token.access_token}"},
             {"Accept", "application/json"}
