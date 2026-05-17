@@ -57,7 +57,8 @@ defmodule KeycloakEx.Client.Admin do
           body,
           [
             {"Authorization", "Bearer #{get_token().token.access_token}"},
-            {"Accept", "application/json"}
+            {"Accept", "application/json"},
+            {"Content-Type", "application/json"}
           ]
         )
       end 
