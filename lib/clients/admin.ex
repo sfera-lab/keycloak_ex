@@ -41,10 +41,17 @@ defmodule KeycloakEx.Client.Admin do
       defp response({:ok, resp}), do: Jason.decode!(resp.body)
       defp response(resp), do: resp
 
-      def get_request_realm(realm, url, body \\ nil) do
+      def make_request_realm(method, realm, url, body \\ nil) when method in [:get, :post, :put, :delete] do
         conf = config()
 
-        OAuth2.Client.get(
+        func = case method do
+          :get -> OAuth2.Client.get/3
+          :post -> OAuth2.Client.post/3
+          :put -> OAuth2.Client.put/3
+          :delete -> OAuth2.Client.delete/3
+        end
+
+        func.(
           new(),
           "#{conf[:host_uri]}/admin/realms/#{realm}/#{url}",
           [
@@ -52,31 +59,19 @@ defmodule KeycloakEx.Client.Admin do
             {"Accept", "application/json"}
           ]
         )
-      end
+      end 
 
-      def get_clients(realm) do
-        get_request_realm(realm, "clients")
-      end
+      def get_request_realm(realm, url, body \\ nil),
+          do: make_request_realm(:get, realm, url, body \\ nil)
 
-      def get_users(realm) do
-        get_request_realm(realm, "users")
-      end
+      def get_clients(realm), do: get_request_realm(realm, "clients")
+      def get_users(realm), do: get_request_realm(realm, "users")
+      def get_user(realm, id), do: get_request_realm(realm, "users/#{id}")
+      def get_user_by_username(realm, username),
+          do: get_request_realm(realm, "users?username=#{username}")
+      def get_user_count(realm), do: get_request_realm(realm, "users/count")
+      def get_users_profile(realm), do: get_request_realm(realm, "users/profile")
 
-      def get_user_by_username(realm, username) do
-        get_request_realm(realm, "users?username=#{username}")
-      end
-
-      def get_user(realm, id) do
-        get_request_realm(realm, "users/#{id}")
-      end
-
-      def get_user_count(realm) do
-        get_request_realm(realm, "users/count")
-      end
-
-      def get_users_profile(realm) do
-        get_request_realm(realm, "users/profile")
-      end
     end
   end
 end
