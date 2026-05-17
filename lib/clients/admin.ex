@@ -45,10 +45,10 @@ defmodule KeycloakEx.Client.Admin do
         conf = config()
 
         func = case method do
-          :get -> OAuth2.Client.get/3
-          :post -> OAuth2.Client.post/3
-          :put -> OAuth2.Client.put/3
-          :delete -> OAuth2.Client.delete/3
+          :get -> &OAuth2.Client.get/3
+          :post -> &OAuth2.Client.post/3
+          :put -> &OAuth2.Client.put/3
+          :delete -> &OAuth2.Client.delete/3
         end
 
         func.(
@@ -62,7 +62,7 @@ defmodule KeycloakEx.Client.Admin do
       end 
 
       def get_request_realm(realm, url, body \\ nil),
-          do: make_request_realm(:get, realm, url, body \\ nil)
+          do: make_request_realm(:get, realm, url, body)
 
       def get_clients(realm), do: get_request_realm(realm, "clients")
       def get_users(realm), do: get_request_realm(realm, "users")
