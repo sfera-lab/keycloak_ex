@@ -45,10 +45,10 @@ defmodule KeycloakEx.Client.Admin do
         conf = config()
 
         func = case method do
-          :get -> &OAuth2.Client.get/3
-          :post -> &OAuth2.Client.post/3
-          :put -> &OAuth2.Client.put/3
-          :delete -> &OAuth2.Client.delete/3
+          :get -> &OAuth2.Client.get/4
+          :post -> &OAuth2.Client.post/4
+          :put -> &OAuth2.Client.put/4
+          :delete -> &OAuth2.Client.delete/4
         end
 
         func.(
