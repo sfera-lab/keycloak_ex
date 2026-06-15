@@ -44,10 +44,12 @@ defmodule KeycloakEx.TokenVerifier do
     case client.get_jws() do
       {:ok, %OAuth2.Response{status_code: 200, body: body}} ->
         case body do
-          %{"keys" => keys} -> keys |> IO.inspect()
+          %{"keys" => keys} -> keys
           _ -> []
         end
-      _ -> []
+
+      _ ->
+        []
     end
   end
 
@@ -69,10 +71,10 @@ defmodule KeycloakEx.TokenVerifier do
   end
 
   defp get_valid_key(token, jwks) do
-    with {:ok, %JWT{} = jwt, %{"kid" => kid}} <- decode_token(token),
-         key <- Enum.find(jwks, fn k -> k["kid"] == kid end),
+    with {:ok, %JWT{} = jwt, kid} <- decode_token(token),
+         %{} = key <- Enum.find(jwks, fn k -> k["kid"] == kid end),
          jwk <- JWK.from(key),
-         true <- JOSE.JWT.verify_strict(jwk, ["RS256"], token) do
+         {true, %JWT{}, _jws} <- JOSE.JWT.verify_strict(jwk, ["RS256"], token) do
       {:ok, jwt, jwk}
     else
       _ -> {:error, "Invalid key"}
@@ -80,10 +82,11 @@ defmodule KeycloakEx.TokenVerifier do
   end
 
   defp decode_token(token) do
-    case JOSE.JWT.peek_payload(token) do
-      %JOSE.JWT{} = jwt -> {:ok, jwt, JOSE.JWT.peek_protected(token)}
-      _ -> {:error, "Invalid JWT"}
-    end
+    %JWT{} = jwt = JOSE.JWT.peek_payload(token)
+    %JOSE.JWS{fields: %{"kid" => kid}} = JOSE.JWT.peek_protected(token)
+    {:ok, jwt, kid}
+  rescue
+    _ -> {:error, "Invalid JWT"}
   end
 
   defp validate_claims(%{"exp" => exp}) do
