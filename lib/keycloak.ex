@@ -7,8 +7,9 @@ defmodule KeycloakEx do
     * `KeycloakEx.Client.User` - Requires a client to be setup in keycloak and for security should be the primary client to be used. The client is utilised to verify tokens and redirect if the token is incorrect.
     * `KeycloakEx.Client.Admin` - Admin Client to easily connect with Keycloak admin REST API, so as to be able to manage keycloak or get information that is not possible from clients.
 
-  There are also 2 plugs. Each useful in different scenarios:
-    * `KeycloakEx.VerifyBearerToken` - Ideal for API scenarios where the token is not managed by the backend. Where the token is received in the header  as authorization bearer token. The plug will verify  the validity of the token and respond accordingly.
+  There are also 3 plugs. Each useful in different scenarios:
+    * `KeycloakEx.VerifyBearerToken` - Ideal for API scenarios where the token is not managed by the backend. Where the token is received in the header  as authorization bearer token. The plug will verify  the validity of the token, via introspection, and respond accordingly.
+    * `KeycloakEx.VerifyOfflineBearerToken` - Same scenario as `KeycloakEx.VerifyBearerToken`, but verifies the token offline against the realm JWKS (cached by `KeycloakEx.TokenVerifier`) instead of calling the introspection endpoint on every request. Also validates the `iss`, `aud` and `nbf` claims.
     * `KeycloakEx.VerifySessionToken` - Ideal for Phoenix HTML/Live views but the token is managed by the backend. Plug would manage token in the session.
 
   **NOTE**
